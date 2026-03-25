@@ -78,14 +78,57 @@ function hideDifficultySelect() { // Hide Difficulty Selection UI
 
 async function startGameWithDifficulty(filename) { // Start Game w/ Selected Difficulty
   hideDifficultySelect();
+  showScreen('loading');
+  document.getElementById('loading').style.display = 'flex';
+  
   const loaded = await loadChartFile(filename);
-
+  
   if (loaded) {
+    // Wait for video and audio to be ready
+    await waitForMediaLoading();
+    document.getElementById('loading').style.display = 'none';
     startCountdown();
   } else {
     alert('Failed to load chart. Using default notes.');
+    document.getElementById('loading').style.display = 'none';
     startCountdown();
   }
+}
+
+async function waitForMediaLoading() { // Wait for video and audio to load
+  const video = document.getElementById('videoBg');
+  const audio = document.getElementById('song');
+  const loadingProgress = document.getElementById('loadingProgress');
+  
+  return new Promise((resolve) => {
+    let videoReady = false;
+    let audioReady = false;
+    
+    const checkReady = () => {
+      if (videoReady && audioReady) {
+        loadingProgress.textContent = '100%';
+        setTimeout(resolve, 500); // Brief pause to show 100%
+      } else {
+        let progress = 0;
+        if (video.readyState >= 2) progress += 50;
+        if (audio.readyState >= 2) progress += 50;
+        loadingProgress.textContent = progress + '%';
+        requestAnimationFrame(checkReady);
+      }
+    };
+    
+    video.oncanplay = () => { videoReady = true; };
+    audio.oncanplaythrough = () => { audioReady = true; };
+    
+    // Fallback in case events don't fire quickly
+    setTimeout(() => {
+      videoReady = true;
+      audioReady = true;
+      checkReady();
+    }, 2000);
+    
+    checkReady();
+  });
 }
 
 // Overall Functions
@@ -180,7 +223,7 @@ function startActualGame() { // Game Start
   song.currentTime = 0;
   
   // Speed up video
-  video.playbackRate = 8;
+  video.playbackRate = 16;
   song.playbackRate = 1;
   
   song.play();
@@ -189,6 +232,11 @@ function startActualGame() { // Game Start
 }
 
 function startNotes() { // Note Start
+  if (!isGameRunning || notesData.length === 0) return;
+  
+  // Calculate the time after the last note plays
+  const lastNoteTime = notesData[notesData.length - 1].time;
+  
   notesData.forEach(note => {
     if (isGameRunning) {
       setTimeout(() => {
@@ -196,6 +244,13 @@ function startNotes() { // Note Start
       }, note.time);
     }
   });
+  
+  // Auto-end game after the last note and a buffer
+  setTimeout(() => {
+    if (isGameRunning && document.querySelectorAll('.note').length === 0) {
+      endGame('Level Complete!');
+    }
+  }, lastNoteTime + 2000);
 }
 
 function spawnNote(laneIndex) { // Note Spawner
@@ -274,8 +329,44 @@ function endGame(message) { // Game End Handler
   document.getElementById('videoBg').pause();
   document.querySelectorAll('.note').forEach(note => note.remove());
   
-  const result = `${message}\nScore: ${score}\nMisses: ${misses}`;
-  alert(result);
+  // Show results popup
+  showGameResults(message);
+}
+
+function showGameResults(message) { // Display game results and exit options
+  const resultsPopup = document.createElement('div');
+  resultsPopup.id = 'gameResults';
+  resultsPopup.className = 'popup';
+  resultsPopup.style.display = 'block';
+  resultsPopup.innerHTML = `
+    <h2>Game Over</h2>
+    <p style="font-size: 18px; margin-top: 20px;">${message}</p>
+    <div style="margin-top: 30px; font-size: 20px; font-weight: bold;">
+      <p>Score: <span style="color: #ff6b6b;">${score}</span></p>
+      <p>Misses: <span style="color: #ff6b6b;">${misses}</span></p>
+    </div>
+    <div style="margin-top: 30px; display: flex; gap: 10px; justify-content: center;">
+      <button onclick="restartGame()" style="padding: 10px 20px; font-size: 16px; cursor: pointer; background: #4CAF50; color: white; border: none; border-radius: 5px;">Play Again</button>
+      <button onclick="exitToMenu()" style="padding: 10px 20px; font-size: 16px; cursor: pointer; background: #f44336; color: white; border: none; border-radius: 5px;">Exit to Menu</button>
+    </div>
+  `;
+  
+  document.body.appendChild(resultsPopup);
+  document.getElementById('landing').classList.add('blur');
+}
+
+function restartGame() { // Restart game by returning to difficulty selection
+  const resultsPopup = document.getElementById('gameResults');
+  if (resultsPopup) resultsPopup.remove();
+  
+  document.getElementById('landing').classList.remove('blur');
+  showDifficultySelect();
+}
+
+function exitToMenu() { // Return to main menu
+  const resultsPopup = document.getElementById('gameResults');
+  if (resultsPopup) resultsPopup.remove();
+  
   returnToLanding();
 }
 
