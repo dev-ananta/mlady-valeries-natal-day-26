@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Rhythm Game - Valerie's Birthday</title>
+        <link href="styles.css" rel="stylesheet">
+    </head>
+
+    <body>
+        <!-- Fullscreen Button (appears on all screens) -->
+        <button id="fullscreenBtn" onclick="toggleFullscreen()" class="fullscreen-btn">⛶ Fullscreen</button>
+
+        <!-- Landing Screen -->
+        <div id="landing" class="screen">
+            <div id="mainMenu" class="button-container">
+                <button class="landing-btn" onclick="showDifficultySelect()">Play</button>
+                <button class="landing-btn" onclick="startWatch()">Watch</button>
+                <button class="landing-btn" onclick="showPopup('credits')">Credits</button>
+                <button class="landing-btn" onclick="showPopup('message')">Message</button>
+            </div>
+            
+            <!-- Difficulty Selection Menu -->
+            <div id="difficultyMenu" class="button-container" style="display: none;">
+                <h2 style="color: #fff; margin-bottom: 30px;">Select Difficulty</h2>
+                <button class="landing-btn" onclick="startGameWithDifficulty('Normal.dat')">Normal</button>
+                <button class="landing-btn" onclick="startGameWithDifficulty('Hard.dat')">Hard</button>
+                <button class="landing-btn" onclick="startGameWithDifficulty('Expert.dat')">Expert</button>
+                <button class="landing-btn" onclick="hideDifficultySelect()" style="background-color: #666;">Back</button>
+            </div>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="game" class="screen">
+            <video id="videoBg" src="assets/animation.mp4" autoplay loop muted></video>
+            <audio id="song" src="assets/song.mp3"></audio>
+            
+            <!-- Lane Container -->
+            <div id="lanes">
+                <div class="lane" id="lane-0">
+                    <div class="key-label">D</div>
+                </div>
+                <div class="lane" id="lane-1">
+                    <div class="key-label">F</div>
+                </div>
+                <div class="lane" id="lane-2">
+                    <div class="key-label">J</div>
+                </div>
+                <div class="lane" id="lane-3">
+                    <div class="key-label">K</div>
+                </div>
+            </div>
+            
+            <div id="notes"></div>
+            <div id="hitLine"></div>
+        </div>
+
+        <!-- Watch Sequence Screen -->
+        <div id="watch" class="screen">
+            <video id="watchVideo" src="assets/animation.mp4" autoplay></video>
+            <button id="exitWatch" class="exit-btn" onclick="exitWatch()">← Exit</button>
+        </div>
+
+        <!-- Popup Cards -->
+        <div id="countdown" class="popup">
+            <h2>Get Ready!</h2>
+            <p>Game starts in...</p>
+            <div id="countdownDisplay" style="font-size: 48px; font-weight: bold; color: #ff6b6b; margin: 20px 0;">15</div>
+            <div id="controls" style="margin-top: 30px; text-align: left; background: #f5f5f5; padding: 20px; border-radius: 8px;">
+                <h3 style="margin-top: 0;">Controls:</h3>
+                <p><strong>D</strong> - Left Lane</p>
+                <p><strong>F</strong> - Left-Mid Lane</p>
+                <p><strong>J</strong> - Right-Mid Lane</p>
+                <p><strong>K</strong> - Right Lane</p>
+                <p style="margin-top: 15px; font-size: 14px; color: #666;"><em>Click on the screen or press keys when notes reach the bottom line!</em></p>
+            </div>
+        </div>
+
+        <div id="credits" class="popup">
+            <h2>Credits</h2>
+            <p>Starfall by Fireentity, Cosmic Princess Kaguya! by Studio Colorido, Some JS by Chipotle (The Mexican Grill), This Game by Abyssal Entity, Lord Ananta the Developer</p>
+            <button onclick="closePopup('credits')">Close</button>
+        </div>
+
+        <div id="message" class="popup">
+            <h2>Message</h2>
+            <p>Happy Birthday, Valerie! You were such an incredible resource for me when I first joined Hack Club. In such a short time, I’ve grown so much—largely because I was inspired by your unique mix of being goofy and carefree, yet so incredibly talented. I loved seeing you pop up more in the Slack chats; it really encouraged me to start engaging in more conversations myself. You deserve the absolute best, Valerie. Happy Birthday!</p>
+            <button onclick="closePopup('message')">Close</button>
+        </div>
+
+        <script src="script.js"></script>
+    </body>
+</html>

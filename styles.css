@@ -1,0 +1,217 @@
+/* OVERALL */
+body, html {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+  overflow: hidden;
+}
+
+.screen {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: none;
+}
+
+.blur {
+  filter: blur(5px);
+}
+
+/* Fullscreen */
+.fullscreen-btn {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 30;
+  padding: 10px 20px;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  border: 1px solid white;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.fullscreen-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* LANDING */
+#landing {
+  background: url('assets/background.jpg') center/cover;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Button */
+.button-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: center;
+  z-index: 5;
+}
+
+.landing-btn {
+  padding: 20px 50px;
+  font-size: 24px;
+  cursor: pointer;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  border: 2px solid white;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+
+.landing-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.05);
+}
+
+/* Popup */
+.popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  padding: 40px;
+  display: none;
+  z-index: 20;
+  border-radius: 15px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  max-width: 400px;
+  text-align: center;
+}
+
+.popup h2 {
+  margin-top: 0;
+  color: #333;
+}
+
+.popup p {
+  color: #666;
+  font-size: 16px;
+}
+
+.popup button {
+  padding: 10px 30px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 20px;
+}
+
+.popup button:hover {
+  background: #0056b3;
+}
+
+/* GAME & WATCH */
+#videoBg, #watchVideo {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Game */
+#game {
+  background: black;
+  display: none;
+}
+
+.key-label {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 20px;
+  font-weight: bold;
+}
+
+#hitLine {
+  position: absolute;
+  bottom: 100px;
+  width: 100%;
+  height: 5px;
+  background: white;
+  z-index: 5;
+}
+
+/* lane */
+#lanes {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 150px;
+  display: flex;
+  z-index: 4;
+}
+
+.lane {
+  flex: 1;
+  border-right: 2px solid rgba(255, 255, 255, 0.3);
+  background: rgba(0, 0, 0, 0.1);
+  position: relative;
+  transition: background 0.1s ease;
+}
+
+.lane:last-child {
+  border-right: none;
+}
+
+.lane.active {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* notes */
+#notes {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: 5;
+}
+
+.note {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  background: red;
+  border-radius: 5px;
+  top: -60px;
+  box-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
+}
+
+/* Watch */
+#watch {
+  background: black;
+  display: none;
+  justify-content: center;
+  align-items: center;
+}
+
+.exit-btn {
+  position: fixed;
+  bottom: 30px;
+  left: 30px;
+  z-index: 10;
+  padding: 15px 30px;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  border: 2px solid white;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 18px;
+  transition: all 0.3s ease;
+}
+
+.exit-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
