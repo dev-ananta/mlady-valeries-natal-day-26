@@ -393,6 +393,8 @@ function endGame(message) { // Game End Handler
 }
 
 function showGameResults(message) { // Display game results and exit options
+  hideGameResults();
+
   const resultsPopup = document.createElement('div');
   resultsPopup.id = 'gameResults';
   resultsPopup.className = 'popup';
@@ -414,18 +416,24 @@ function showGameResults(message) { // Display game results and exit options
   document.getElementById('landing').classList.add('blur');
 }
 
-function restartGame() { // Restart game by returning to difficulty selection
+function hideGameResults() {
   const resultsPopup = document.getElementById('gameResults');
-  if (resultsPopup) resultsPopup.remove();
-  
+  if (resultsPopup) {
+    resultsPopup.style.display = 'none';
+    resultsPopup.remove();
+  }
+
   document.getElementById('landing').classList.remove('blur');
+}
+
+function restartGame() { // Restart game by returning to difficulty selection
+  hideGameResults();
+  showScreen('landing');
   showDifficultySelect();
 }
 
 function exitToMenu() { // Return to main menu
-  const resultsPopup = document.getElementById('gameResults');
-  if (resultsPopup) resultsPopup.remove();
-  
+  hideGameResults();
   returnToLanding();
 }
 
