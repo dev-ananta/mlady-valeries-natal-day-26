@@ -29,21 +29,69 @@ const keyLaneMap = { // Key <-- Lane Index
 
 // Chart Metadata
 let chartMetadata = null;
-const BPM = 120; // Default BPM - Update from dat-files/Info.dat
+const BUNNY_CDN_ANIMATION_URL = 'https://cdn-temporary.b-cdn.net/animation.mp4';
+// const LOCAL_ANIMATION_ASSET = 'assets/animation.mp4';
 
-// Parse .dat & Convert --> Game Format
-async function loadChartFile(filename) {
+const beatLaneMap = {
+  C: 0,
+  'C#': 0,
+  D: 0,
+  'D#': 1,
+  E: 1,
+  F: 1,
+  'F#': 2,
+  G: 2,
+  'G#': 2,
+  A: 3,
+  'A#': 3,
+  B: 3
+};
+
+function getAnimationAssetUrl() {
+  return BUNNY_CDN_ANIMATION_URL.trim();
+}
+
+function applyAnimationAsset() {
+  const animationUrl = getAnimationAssetUrl();
+  const videoElements = [
+    document.getElementById('videoBg'),
+    document.getElementById('watchVideo')
+  ].filter(Boolean);
+
+  videoElements.forEach(video => {
+    if (animationUrl) {
+      video.src = animationUrl;
+      video.load();
+    } else {
+      video.removeAttribute('src');
+      video.load();
+    }
+  });
+}
+
+// Parse beat.json into the game format.
+async function loadChartFile() {
   try {
-    const response = await fetch(`dat-files/${filename}`);
+    const response = await fetch('beat.json');
     const data = await response.json();
 
-    // .dat --> Game Format
-    notesData = data._notes.map(note => ({
-      time: Math.round(note._time * (60000 / BPM)),
-      lane: note._lineIndex
-    })).sort((a, b) => a.time - b.time);
+    if (!Array.isArray(data)) {
+      throw new Error('beat.json must contain an array of notes.');
+    }
 
-    console.log(`Loaded ${filename}: ${notesData.length} notes`);
+    notesData = data
+      .map(note => ({
+        time: Math.round(Number(note.seconds || 0) * 1000),
+        lane: beatLaneMap[note.beat]
+      }))
+      .filter(note => Number.isFinite(note.time) && Number.isInteger(note.lane))
+      .sort((a, b) => a.time - b.time);
+
+    if (notesData.length === 0) {
+      throw new Error('beat.json did not produce any playable notes.');
+    }
+
+    console.log(`Loaded beat.json: ${notesData.length} notes`);
     return true;
   } catch (error) {
     console.error('Error loading chart:', error);
@@ -51,18 +99,17 @@ async function loadChartFile(filename) {
   }
 }
 
-async function loadChartMetadata() { // Load Chart Metadata
-  try {
-    const response = await fetch('dat-files/Info.dat');
-    chartMetadata = await response.json();
-    console.log('Chart metadata loaded:', chartMetadata._songName);
-  } catch (error) {
-    console.error('Error loading metadata:', error);
-  }
+function loadChartMetadata() { // Load Chart Metadata
+  chartMetadata = {
+    songName: "Valerie's Birthday Beat",
+    chartFile: 'beat.json'
+  };
+  console.log('Chart metadata loaded:', chartMetadata.songName);
 }
 
 window.addEventListener('load', () => { // Intialization
   document.getElementById('landing').style.display = 'flex';
+  applyAnimationAsset();
   loadChartMetadata();
 })
 
@@ -76,15 +123,13 @@ function hideDifficultySelect() { // Hide Difficulty Selection UI
   document.getElementById('difficultyMenu').style.display = 'none';
 }
 
-async function startGameWithDifficulty(filename) { // Start Game w/ Selected Difficulty
-  hideDifficultySelect();
+async function startGameWithDifficulty() { // Start Game with beat.json chart
   showScreen('loading');
   document.getElementById('loading').style.display = 'flex';
   
-  const loaded = await loadChartFile(filename);
+  const loaded = await loadChartFile();
   
   if (loaded) {
-    // Wait for video and audio to be ready
     await waitForMediaLoading();
     document.getElementById('loading').style.display = 'none';
     startCountdown();
@@ -101,7 +146,8 @@ async function waitForMediaLoading() { // Wait for video and audio to load
   const loadingProgress = document.getElementById('loadingProgress');
   
   return new Promise((resolve) => {
-    let videoReady = false;
+    const hasVideo = Boolean(video && video.getAttribute('src'));
+    let videoReady = !hasVideo;
     let audioReady = false;
     
     const checkReady = () => {
@@ -110,19 +156,23 @@ async function waitForMediaLoading() { // Wait for video and audio to load
         setTimeout(resolve, 500); // Brief pause to show 100%
       } else {
         let progress = 0;
-        if (video.readyState >= 2) progress += 50;
+        if (videoReady || (video && video.readyState >= 2)) progress += 50;
         if (audio.readyState >= 2) progress += 50;
         loadingProgress.textContent = progress + '%';
         requestAnimationFrame(checkReady);
       }
     };
     
-    video.oncanplay = () => { videoReady = true; };
+    if (hasVideo) {
+      video.oncanplay = () => { videoReady = true; };
+    }
     audio.oncanplaythrough = () => { audioReady = true; };
     
     // Fallback in case events don't fire quickly
     setTimeout(() => {
-      videoReady = true;
+      if (hasVideo) {
+        videoReady = true;
+      }
       audioReady = true;
       checkReady();
     }, 2000);
@@ -219,15 +269,21 @@ function startActualGame() { // Game Start
   const song = document.getElementById('song');
 
   // Reset video and audio
-  video.currentTime = 0;
+  if (video) {
+    video.currentTime = 0;
+  }
   song.currentTime = 0;
   
   // Speed up video
-  video.playbackRate = 16;
+  if (video) {
+    video.playbackRate = 16;
+  }
   song.playbackRate = 1;
   
   song.play();
-  video.play();
+  if (video && video.getAttribute('src')) {
+    video.play().catch(error => console.warn('Video playback skipped:', error));
+  }
   startNotes();
 }
 
@@ -326,7 +382,10 @@ function endGame(message) { // Game End Handler
   isGameRunning = false;
   clearInterval(countdownInterval);
   document.getElementById('song').pause();
-  document.getElementById('videoBg').pause();
+  const video = document.getElementById('videoBg');
+  if (video) {
+    video.pause();
+  }
   document.querySelectorAll('.note').forEach(note => note.remove());
   
   // Show results popup
@@ -374,9 +433,14 @@ function exitToMenu() { // Return to main menu
 function startWatch() { // Start Watch
   showScreen('watch');
   const video = document.getElementById('watchVideo');
+  if (!video.getAttribute('src')) {
+    alert('Add your Bunny CDN animation URL in script.js to enable Watch mode.');
+    returnToLanding();
+    return;
+  }
   video.currentTime = 0;
   video.playbackRate = 1;
-  video.play();
+  video.play().catch(error => console.warn('Watch playback failed:', error));
 }
 
 function exitWatch() { // Exit Watch

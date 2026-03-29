@@ -16,7 +16,7 @@
         <!-- Landing Screen -->
         <div id="landing" class="screen">
             <div id="mainMenu" class="button-container">
-                <button class="landing-btn" onclick="showDifficultySelect()">Play</button>
+                <button class="landing-btn" onclick="startGameWithDifficulty()">Play</button>
                 <button class="landing-btn" onclick="startWatch()">Watch</button>
                 <button class="landing-btn" onclick="showPopup('credits')">Credits</button>
                 <button class="landing-btn" onclick="showPopup('message')">Message</button>
@@ -24,10 +24,8 @@
             
             <!-- Difficulty Selection Menu -->
             <div id="difficultyMenu" class="button-container" style="display: none;">
-                <h2 style="color: #fff; margin-bottom: 30px;">Select Difficulty</h2>
-                <button class="landing-btn" onclick="startGameWithDifficulty('Normal.dat')">Normal</button>
-                <button class="landing-btn" onclick="startGameWithDifficulty('Hard.dat')">Hard</button>
-                <button class="landing-btn" onclick="startGameWithDifficulty('Expert.dat')">Expert</button>
+                <h2 style="color: #fff; margin-bottom: 30px;">Single Chart Mode</h2>
+                <button class="landing-btn" onclick="startGameWithDifficulty()">Play from beat.json</button>
                 <button class="landing-btn" onclick="hideDifficultySelect()" style="background-color: #666;">Back</button>
             </div>
         </div>
@@ -36,14 +34,22 @@
         <div id="loading" class="screen" style="display: none; justify-content: center; align-items: center; background: #1a1a1a;">
             <div style="text-align: center; color: white;">
                 <h1>Loading...</h1>
-                <div style="margin-top: 20px; font-size: 18px;">Preparing animation and soundtrack</div>
+                <div style="margin-top: 20px; font-size: 18px;">Preparing beat chart and soundtrack</div>
                 <div id="loadingProgress" style="margin-top: 30px; font-size: 14px; color: #888;">0%</div>
             </div>
         </div>
 
         <!-- Game Screen -->
         <div id="game" class="screen">
+            <!-- Local animation asset disabled:
             <video id="videoBg" src="assets/animation.mp4" autoplay loop muted></video>
+            -->
+            <video id="videoBg" autoplay loop muted playsinline></video>
+            <!-- Bunny CDN placeholder:
+            1. Upload the file to Bunny Storage or serve it through a Pull Zone.
+            2. Copy the public asset URL from Bunny, or build it as https://your-zone.b-cdn.net/path/to/animation.mp4
+            3. Paste that URL into BUNNY_CDN_ANIMATION_URL in script.js.
+            -->
             <audio id="song" src="assets/song.mp3"></audio>
             
             <!-- Lane Container -->
@@ -68,7 +74,10 @@
 
         <!-- Watch Sequence Screen -->
         <div id="watch" class="screen">
+            <!-- Local animation asset disabled:
             <video id="watchVideo" src="assets/animation.mp4" autoplay></video>
+            -->
+            <video id="watchVideo" autoplay playsinline></video>
             <button id="exitWatch" class="exit-btn" onclick="exitWatch()">← Exit</button>
         </div>
 
