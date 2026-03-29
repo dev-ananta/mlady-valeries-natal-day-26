@@ -313,7 +313,7 @@ function spawnNote(laneIndex) { // Note Spawner
   const note = document.createElement('div');
   note.classList.add('note');
   note.dataset.lane = laneIndex;
-  note.dataset.hit = false;
+  note.dataset.hit = 'false';
   
   const laneCenter = (laneIndex * LANE_WIDTH) + (LANE_WIDTH / 2);
   note.style.left = (laneCenter - 25) + 'px';
@@ -327,7 +327,7 @@ function spawnNote(laneIndex) { // Note Spawner
 
     if (pos > window.innerHeight) {
       clearInterval(fall);
-      if (!note.dataset.hit) {
+      if (note.dataset.hit !== 'true') {
         note.remove();
         misses++;
         if (misses >= 3) {
@@ -357,7 +357,7 @@ function checkHit(laneIndex) { // Hit Handler
   let bestDistance = HIT_TOLERANCE;
   
   notes.forEach(note => {
-    if (note.dataset.hit === 'false' || !note.dataset.hit) {
+    if (note.dataset.hit !== 'true') {
       const rect = note.getBoundingClientRect();
       const distance = Math.abs((rect.top + rect.height / 2) - (HIT_ZONE_TOP + HIT_ZONE_BOTTOM) / 2);
       
@@ -369,7 +369,7 @@ function checkHit(laneIndex) { // Hit Handler
   });
   
   if (hitNote) {
-    hitNote.dataset.hit = true;
+    hitNote.dataset.hit = 'true';
     hitNote.style.opacity = '0.5';
     setTimeout(() => hitNote.remove(), 200);
     score++;
